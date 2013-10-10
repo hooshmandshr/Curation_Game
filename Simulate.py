@@ -1,38 +1,59 @@
-import sys, os
-import networkx as nx
-import numpy.random as rand 
-import math
-from CurationGame import CurationGame
+
+import numpy.random as random
+from Game import Game
 
 
-g = CurationGame()
-g.initialize()
-g.updateUtility()
+g = Game()
 
-publishers = g.Class['publisher']
-contents = g.Class['content']
+print "Intrinsic content values:"
+print g.Value
+print '\n'
 
-profile = {}
-
-for p in publishers:
-	profile[p] = []
-	threshold = rand.rand()
-	for c in contents:
-		if rand.rand() > threshold:
-			profile[p].append(c)
-print len(g.Graph.edges())
-
-g.carryOutActionProfile(profile)
-print len(g.Graph.edges())
-g.updateUtility()
-
-print g.Utility
+print "Potential Gain of publishing contents:"
+g.updateGain
+print g.Gain
+print '\n'
 
 
-'''
-for reader in g.Value:
-	print g.Value[reader]
-print g.Class
+R = g.readers()
+P = g.publishers()
+C = g.contents()
+
+print "Edges:"
 print g.Graph.edges()
+print '\n'
+
+print "Contents:\t" + str(g.contents())
+print "Publishers:\t" + str(g.publishers())
+print "Readers:\t" + str(g.readers())
+print '\n'
+
+print "Utilities:"
+g.updateUtility()
 print g.Utility
-'''
+print '\n'
+
+print "Potential Gain:"
+g.updateGain()
+print g.Gain
+print '\n'
+
+i = 0
+previous = g.Graph.edges(g.contents())
+#print g.Gain
+g.playRound()
+print "Round " + str(i) + ":"
+print g.Graph.edges(g.contents())
+current = g.Graph.edges(g.contents())
+g.updateUtility
+print g.Utility
+while not(set(current) == set(previous)): 
+	i += 1
+	print "Round " + str(i) + ":" 
+	#print g.Gain
+	previous = current
+	current = g.Graph.edges(g.contents())
+	g.playRound()
+	print g.Graph.edges(g.contents())
+	g.updateUtility
+	print g.Utility
