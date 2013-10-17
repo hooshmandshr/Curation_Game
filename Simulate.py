@@ -4,7 +4,9 @@ from Game import Game
 
 
 g = Game()
+g.playGame()
 
+'''
 print "Intrinsic content values:"
 print g.Value
 print '\n'
@@ -57,3 +59,5 @@ while not(set(current) == set(previous)):
 	print g.Graph.edges(g.contents())
 	g.updateUtility
 	print g.Utility
+'''
+

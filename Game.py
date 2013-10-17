@@ -2,6 +2,20 @@ import networkx
 import numpy.random as random
 import sys, os
 import pandas
+import cfgparse
+import numpy
+
+
+def process(string, type='float'):
+	
+	string = string.replace(' ', '')
+	string = string.split(',')
+	l = []
+	for element in string:
+		command = 'l.append(' + type + '(element))'
+		exec(command)
+	l.sort()
+	return l
 
 class Game:
 	
@@ -15,7 +29,7 @@ class Game:
 		self.Gain = {}
 
 		self.Attention = 0 
-		self.Size = 30 
+		self.Size = 10
 		
 		self.initialize()
 
@@ -33,6 +47,8 @@ class Game:
 
 
 	def initialize(self):
+
+		self.configure()
 
 		#TODO setup graph nodes
 		for i in range(1, self.Size):
@@ -69,7 +85,32 @@ class Game:
 		#TODO setup attention
 		self.Attention = int(len(self.contents())/2)
 	
-	
+	def configure(self):
+
+		configFile = 'config.ini'
+		cparser = cfgparse.ConfigParser()
+
+		cparser.add_option('size', dest='size', type='int', keys='DEFAULT')
+		cparser.add_option('use_distribution', dest='flag', type='int', keys='DEFAULT')
+		cparser.add_option('class_distribution', dest='cdf', type='string', keys='DEFAULT')
+		cparser.add_option('class_population', dest='population', type='string', keys='DEFAULT')
+		cparser.add_file(configFile)
+
+		options = cparser.parse()
+
+		self.Size = options.size
+		flag = options.flag
+		if flag:
+			
+			cdf = process(options.cdf)
+			self.ClassDistribution['content'] = cdf[0]
+			self.ClassDistribution['publisher'] = cdf[1]
+			self.ClassDistribution['reader'] = cdf[2]
+
+		else:
+			population = process(options.population, type='int')
+			self.Size = sum(population)
+
 	def potential(self, publisher, content):
 
 		gain = 0
@@ -149,5 +190,62 @@ class Game:
 		# add the new action profile
 		for edge in actionProfile:
 			self.Graph.add_edge(edge[0], edge[1])
-		
-		
+
+		self.updateUtility()
+
+
+	def playGame(self):
+
+		self.printGameConstants()	
+		self.printGameVariables()
+
+		previous = None
+		current = set(self.Graph.edges(self.contents()))
+
+		count = 0
+		while previous != current:
+			count += 1
+			previous = current
+			print "Round " + str(count) + ":"	
+			self.playRound()
+			self.printGameVariables()
+			current = set(self.Graph.edges(self.contents()))
+
+	def printGameConstants(self):
+	
+		print "Contents:" 
+		print self.Class["content"]
+		print "Publishers:"
+		print self.Class["publisher"]
+		print "Readers:"
+		print self.Class["reader"]
+		print
+		print "Intrinsic values:"
+		print self.Value
+		print
+		print "Followers:"
+		for publisher in self.publishers():
+			followers = self.Graph.neighbors(publisher)
+			followers = set(followers)
+			followers = followers.difference(set(self.contents()))
+			followers = list(followers)
+			followers.sort()
+			print str(publisher) + ":" + str(followers)
+		print
+
+	def printGameVariables(self):
+
+		print "Shared Contents:"
+		for publisher in self.publishers():
+			followers = self.Graph.neighbors(publisher)
+			followers = set(followers)
+			followers = followers.difference(set(self.readers()))
+			followers = list(followers)
+			followers.sort()
+			print str(publisher) + ":" + str(followers)
+		print
+		print "Utility: " 
+		print self.Utility
+		print
+
+
