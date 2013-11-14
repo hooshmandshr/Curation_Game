@@ -248,4 +248,78 @@ class Game:
 		print self.Utility
 		print
 
+	def pureNash(self):
+		print "Pure Nash"
+		print self.publishers()
+		print self.contents()
+		print self.readers()
+		print self.Value
+		c = self.contents()
+		r = self.readers()
+		print self.Value.lookup([r[0]], [c[0]])
 
+		
+		for publisher in self.Utility:
+			self.Utility[publisher] = 0
+
+		for reader in self.readers():
+			for content in self.contents():
+				rewardees = []
+				for publisher in self.Graph.neighbors(reader):
+					if content in self.Graph.neighbors(publisher):
+						rewardees.append(publisher)
+				raward = 0
+				if len(rewardees) > 0:
+					reward = float(self.Value.lookup([reader], [content]))/len(rewardees)
+				for rewardee in rewardees:
+					self.Utility[rewardee] += reward
+		gain = 0
+
+		if not(publisher in self.publishers()) or not(content in self.contents()):
+			
+			print "Incorrect use of potential function..."
+			return None
+
+		neighbors = set(self.Graph.neighbors(publisher))
+		subscribers = list(neighbors.difference(set(self.contents())))
+		
+		for reader in subscribers:
+			followee = self.Graph.neighbors(reader)
+			duplicate = []
+			for pub in followee:
+				if content in self.Graph.neighbors(pub):
+					duplicate.append(pub)
+				else:
+					continue
+
+			value = self.Value.lookup([reader], [content])
+			duplicate = len(duplicate)
+
+			if content in self.Graph.neighbors(publisher):
+				#TODO change back to -=
+				#gain -= float(value)/float(duplicate)
+				gain += float(value)/float(duplicate)
+			else:
+				gain += float(value)/float(duplicate + 1)
+				
+		self.updateGain()
+		actionProfile = []
+		for publisher in self.Gain:
+			gainList = sorted(self.Gain[publisher])
+			gainList.reverse()
+			#print publisher
+			#print gainList
+			#print gainList[:self.Attention]
+
+			for Tuple in gainList[:self.Attention]:
+				content = Tuple[1]
+				actionProfile.append((publisher, content))
+
+		# delete previous strategies
+		self.Graph.remove_edges_from(self.Graph.edges(self.contents()))
+		
+		# add the new action profile
+		for edge in actionProfile:
+			self.Graph.add_edge(edge[0], edge[1])
+
+		self.updateUtility()
