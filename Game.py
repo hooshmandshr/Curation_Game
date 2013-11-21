@@ -49,6 +49,10 @@ class Game:
 	def initialize(self):
 
 		self.configure()
+	
+		if self.Options.manualSetup == 1:
+			self.manualSetup()	
+			return
 
 		#TODO setup graph nodes
 		for i in range(1, self.Size):
@@ -84,7 +88,42 @@ class Game:
 
 		#TODO setup attention
 		self.Attention = int(len(self.contents())/2)
-	
+
+
+	def manualSetup(self):
+
+		command = "self.Class = " + self.Options.manualClass
+		exec(command)
+
+		#setting up the graph nodes
+		for cl in self.Class:
+			for node in self.Class[cl]:
+				self.Graph.add_node(node, type=cl)
+
+		#setting up the subscriptions
+		edges = []
+		command = "edges = " + self.Options.manualSubs
+		exec(command)
+		for e in edges:
+			self.Graph.add_edge(e[0], e[1])
+
+		#setting up the values
+		values = {}
+		matrix = []
+		command = "values = " + self.Options.manualValues
+		exec(command)
+		for reader in self.readers():
+			matrix.append([])
+			for content in self.contents():
+				matrix[-1].append(values[reader][content])	
+		self.Value = pandas.DataFrame(matrix, index = self.readers(), columns = self.contents())
+
+		# set utility to zero
+		for publisher in self.publishers():
+			self.Utility[publisher] = 0
+
+		self.Attention = self.Options.limit
+
 	def configure(self):
 
 		configFile = 'config.ini'
@@ -94,21 +133,28 @@ class Game:
 		cparser.add_option('use_distribution', dest='flag', type='int', keys='DEFAULT')
 		cparser.add_option('class_distribution', dest='cdf', type='string', keys='DEFAULT')
 		cparser.add_option('class_population', dest='population', type='string', keys='DEFAULT')
+
+		cparser.add_option('use_manual_definition', dest='manualSetup', type='int', keys='DEFAULT')
+		cparser.add_option('class', dest='manualClass', type='string', keys='DEFAULT')
+		cparser.add_option('values', dest='manualValues', type='string', keys='DEFAULT')
+		cparser.add_option('subscriptions', dest='manualSubs', type='string', keys='DEFAULT')
+		cparser.add_option('limit', dest='limit', type='int', keys='DEFAULT')
+
 		cparser.add_file(configFile)
 
-		options = cparser.parse()
+		self.Options = cparser.parse()
 
-		self.Size = options.size
-		flag = options.flag
+		self.Size = self.Options.size
+		flag = self.Options.flag
 		if flag:
 			
-			cdf = process(options.cdf)
+			cdf = process(self.Options.cdf)
 			self.ClassDistribution['content'] = cdf[0]
 			self.ClassDistribution['publisher'] = cdf[1]
 			self.ClassDistribution['reader'] = cdf[2]
 
 		else:
-			population = process(options.population, type='int')
+			population = process(self.Options.population, type='int')
 			self.Size = sum(population)
 
 	def potential(self, publisher, content):
@@ -171,6 +217,7 @@ class Game:
 					self.Utility[rewardee] += reward
 	
 	def playRound(self):
+		
 		self.updateGain()
 		actionProfile = []
 		for publisher in self.Gain:
@@ -193,23 +240,107 @@ class Game:
 
 		self.updateUtility()
 
+	def playIndividualRound(self):
+		
+		self.updateGain()
+
+		publishers = self.publishers()
+		publisher = publishers[self.Round % len(publishers)]
+		
+
+		actionProfile = []
+		
+		gainList = sorted(self.Gain[publisher])
+		gainList.reverse()
+		#print publisher
+		#print gainList
+		#print gainList[:self.Attention]
+
+		for Tuple in gainList[:self.Attention]:
+			content = Tuple[1]
+			actionProfile.append((publisher, content))
+
+		# delete previous strategies
+		contents = self.contents()
+		edges = self.Graph.edges(publisher)
+		for edge in edges:
+			if edge[0] in contents or edge[1] in contents:
+				self.Graph.remove_edge(edge[0], edge[1])
+
+		# add the new action profile
+		for edge in actionProfile:
+			self.Graph.add_edge(edge[0], edge[1])
+
+		self.updateUtility()
+		self.Round += 1
+	
+	'''
+	def playIndividualRound(self, publisher):
+		
+		self.updateGain()
+
+		publishers = self.publishers()	
+		
+
+		actionProfile = []
+		
+		gainList = sorted(self.Gain[publisher])
+		gainList.reverse()
+		#print publisher
+		#print gainList
+		#print gainList[:self.Attention]
+
+		for Tuple in gainList[:self.Attention]:
+			content = Tuple[1]
+			actionProfile.append((publisher, content))
+
+		# delete previous strategies
+		contents = self.contents()
+		edges = self.Graph.edges(publisher)
+		for edge in edges:
+			if edge[0] in contents or edge[1] in contents:
+				self.Graph.remove_edge(edge[0], edge[1])
+
+		# add the new action profile
+		for edge in actionProfile:
+			self.Graph.add_edge(edge[0], edge[1])
+
+		self.updateUtility()
+		self.Round += 1
+	'''
 
 	def playGame(self):
 
+		self.Round = 0
 		self.printGameConstants()	
 		self.printGameVariables()
 
 		previous = None
 		current = set(self.Graph.edges(self.contents()))
 
+		publishers = self.publishers()
+
 		count = 0
-		while previous != current:
+		while True:
+
+			if previous == current:
+				stationary_steps += 1
+			else:
+				stationary_steps = 0
+
+			if stationary_steps > len(publishers):
+				break
+
 			count += 1
 			previous = current
 			print "Round " + str(count) + ":"	
-			self.playRound()
+			#self.playRound()
+			self.playIndividualRound()
 			self.printGameVariables()
 			current = set(self.Graph.edges(self.contents()))
+
+		print self.Attention
+			
 
 	def printGameConstants(self):
 	
@@ -248,6 +379,7 @@ class Game:
 		print self.Utility
 		print
 
+	
 	def pureNash(self):
 		print "Pure Nash"
 		print self.publishers()
@@ -258,68 +390,5 @@ class Game:
 		r = self.readers()
 		print self.Value.lookup([r[0]], [c[0]])
 
+
 		
-		for publisher in self.Utility:
-			self.Utility[publisher] = 0
-
-		for reader in self.readers():
-			for content in self.contents():
-				rewardees = []
-				for publisher in self.Graph.neighbors(reader):
-					if content in self.Graph.neighbors(publisher):
-						rewardees.append(publisher)
-				raward = 0
-				if len(rewardees) > 0:
-					reward = float(self.Value.lookup([reader], [content]))/len(rewardees)
-				for rewardee in rewardees:
-					self.Utility[rewardee] += reward
-		gain = 0
-
-		if not(publisher in self.publishers()) or not(content in self.contents()):
-			
-			print "Incorrect use of potential function..."
-			return None
-
-		neighbors = set(self.Graph.neighbors(publisher))
-		subscribers = list(neighbors.difference(set(self.contents())))
-		
-		for reader in subscribers:
-			followee = self.Graph.neighbors(reader)
-			duplicate = []
-			for pub in followee:
-				if content in self.Graph.neighbors(pub):
-					duplicate.append(pub)
-				else:
-					continue
-
-			value = self.Value.lookup([reader], [content])
-			duplicate = len(duplicate)
-
-			if content in self.Graph.neighbors(publisher):
-				#TODO change back to -=
-				#gain -= float(value)/float(duplicate)
-				gain += float(value)/float(duplicate)
-			else:
-				gain += float(value)/float(duplicate + 1)
-				
-		self.updateGain()
-		actionProfile = []
-		for publisher in self.Gain:
-			gainList = sorted(self.Gain[publisher])
-			gainList.reverse()
-			#print publisher
-			#print gainList
-			#print gainList[:self.Attention]
-
-			for Tuple in gainList[:self.Attention]:
-				content = Tuple[1]
-				actionProfile.append((publisher, content))
-
-		# delete previous strategies
-		self.Graph.remove_edges_from(self.Graph.edges(self.contents()))
-		
-		# add the new action profile
-		for edge in actionProfile:
-			self.Graph.add_edge(edge[0], edge[1])
-
-		self.updateUtility()
