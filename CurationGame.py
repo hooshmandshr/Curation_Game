@@ -111,7 +111,7 @@ class CurationGame:
 				for publisher in RewardedPublishers:
 					self.Utility[publisher] += Reward 
 		#TODO
-		
+		'''
 		Readers = self.Class['reader']
 		for publisher in self.Utility:
 			self.Utility[publisher] = 0
@@ -132,9 +132,12 @@ class CurationGame:
 				for publisher in ShareCount[content]:
 					self.Utility[publisher] += float(self.Value[reader][content])/float(len(ShareCount))
 
-		
+		'''
 	# TODO
-	#def singleStepBestResponse(self, publisher):
+	def singleStepBestResponse(self, publisher):
+
+		for contnent in self.Class['content']:
+			
 
 g = CurationGame()
 g.initialize()
@@ -160,3 +163,10 @@ g.updateUtility()
 print g.Utility
 
 
+'''
+for reader in g.Value:
+	print g.Value[reader]
+print g.Class
+print g.Graph.edges()
+print g.Utility
+'''

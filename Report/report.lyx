@@ -1,0 +1,439 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Dynamics Convergence to Pure Nash Equilibrium in Content Curation Game
+\end_layout
+
+\begin_layout Section
+Experiment Methodology
+\end_layout
+
+\begin_layout Standard
+We run simulations of the content distribution games on randomly generated
+ networks with different properties and parameters.
+ Then by partially or entirely isolating the parameters of the network and
+ the game we investigate the effects of different properties of the network
+ on the dynamics of convergence to Pure Nash equilibrium of this particular
+ game.
+ The networks are generated given a particular number for the number of
+ nodes.
+ These node then are randomly assigned to be a particular type of node (content,
+ publisher or reader) according to a multinomial distribution.
+ For convenience let us denote the probability by which the nodes have been
+ assigned to be contents and publishers, 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ and 
+\begin_inset Formula $\beta$
+\end_inset
+
+; obviously, the probabilty of a node being labeled reader in that case
+ is 
+\begin_inset Formula $1-\alpha-\beta$
+\end_inset
+
+.
+ The approach followed to draw the connections between readers and publishers
+ (the scenario of fixed followers) remains unaltered during the course of
+ this experiment.
+ The degree of every reader node is sampled from a uniform distribution
+ over the possible degree values i.e.
+ the number of publishers.
+ Followed by this, a set of publishers are picked according to a uniform
+ distribution as well.
+ The intrinsic values of contens to users too, are assigned using a uniform
+ distribution.
+\end_layout
+
+\begin_layout Standard
+Follwing the construction of every singe or set of network, readers, take
+ turn and choose a strategy according to a sorted ordered set of strategies
+ (the purpose is to guarantee the termination of the algorithm) which yields
+ the optimum objective for that particular individual with respect to current
+ strategy of the other users.
+ In upcoming sections, we report statistical data on the number of steps
+ required to reach a Pure Nash equilibrium and correlate it to various propertie
+s af a network.
+\end_layout
+
+\begin_layout Section
+Size of the network
+\end_layout
+
+\begin_layout Standard
+In this section we specifically investigate how the size of the network
+ affect the rate of convergence to PNE in content curations game.
+ The setting of the experiments follows the same framework that we described
+ in the previous section.
+ We randomly generate networks with particular sizes.
+ However, the ratio of the classes (i.e.
+ publishers, contents, and readers) remain the same as well as the ratio
+ of present subscriptions to all potential subscriptions which is 
+\begin_inset Formula $R\times P$
+\end_inset
+
+ if 
+\begin_inset Formula $R$
+\end_inset
+
+ and 
+\begin_inset Formula $P$
+\end_inset
+
+ respectively denote the cardinality of the sets of readers and publishers.
+ Also, the limit of the number of contents that a publisher can share is
+ fixed too.
+ Note that the subscriptions remain unmodified through out a single game
+ since the users are not strategic.
+ Although the ratio remains the same, the edges change even for a graph
+ of some size.
+ This ratio if fixed grows quadratically in the size of the network since
+ all other factors are fixed.
+ In other words, if the ratio of edges is 
+\begin_inset Formula $\eta$
+\end_inset
+
+ we will have 
+\begin_inset Formula $\eta\beta N\times(1-\beta-\alpha)N$
+\end_inset
+
+ which is of order 
+\begin_inset Formula $O(N^{2})$
+\end_inset
+
+.
+ Recall that 
+\begin_inset Formula $\beta$
+\end_inset
+
+ and 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ are the ratio of publisher and content users in the network.
+ The result of the experiment shows sign of growth of 
+\begin_inset Formula $\Omega(N)$
+\end_inset
+
+ which can be related to the quadratic growth of subscriptions.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename C:/Users/Hooshmand/Desktop/Simulations/Experiments/size/size.pdf
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+Rate of convergence to the Pure Nash Equillibrium for different networks
+ having the identical properties (parameters) except for their size.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+The ratio of available contents and publishers to the size of the network
+\end_layout
+
+\begin_layout Standard
+In this section we look at the effects of tempering with the ration of classes
+ across networks on the rate of convergence to the Pure Nash Equillibrium.
+ Again following the main framework, we fix the size of the network, and
+ iterate through descrete values for the ratio of different classes.
+ As you can see, this mesh of values has been chosen to have 
+\begin_inset Formula $0.5$
+\end_inset
+
+ over the two parameters 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ and 
+\begin_inset Formula $\beta$
+\end_inset
+
+.
+ Obviously, by fixing these to the other ratio is determined.
+ We observed the following statistics for the rate of convergence for different
+ values of these ratios.
+ This data demonstrates the intuition that the size of the publishers is
+ a major factor in deciding the rate in which the game converges to the
+ pure Nash Equillibrium.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename C:/Users/Hooshmand/Desktop/Simulations/Experiments/fractions/fraction_contents.pdf
+	scale 30
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename C:/Users/Hooshmand/Desktop/Simulations/Experiments/fractions/fraction_publishers.pdf
+	scale 30
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+Marginal convergence rate of the network curation games with respect to
+ content node and publisher node ration.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename C:/Users/Hooshmand/Desktop/Simulations/Experiments/fractions/3d.pdf
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+Joint convergence rate of the network curation games with respect to content
+ node and publisher node ration
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Attention budget of the readers
+\end_layout
+
+\begin_layout Standard
+In this set of expermients we want to demonstrate the correlation of attention
+ budget (i.e.
+ the limit of the number of contents that each individual publisher shares
+ in terms of ratio to the entire contents) on the dynamics of convergence.
+ The rough concavity of the rate of convergence with respect to the variable
+ and reaching a peak in the middle corresponds to the fact that as the number
+ of options which can be shown by 
+\begin_inset Formula ${C \choose \ell}$
+\end_inset
+
+ by every individual publisher attains its maximum when 
+\begin_inset Formula $\ell=2$
+\end_inset
+
+.
+ Simply the more strategies there are for publishers, the larger the rate
+ of convergence will be.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename C:/Users/Hooshmand/Desktop/Simulations/Experiments/budget/budget.pdf
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+Rate of convergence reported for networks with fixed parameters except for
+ attention budget ratio.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Distribution of Intrinsic Values
+\end_layout
+
+\begin_layout Standard
+Finally, in the last section we see some interesting results on the influence
+ of the distribution of intrinsic values of the contents to the useres to
+ the rate of convergence.
+ The following figure shows the difference of rate of convergence on the
+ same networks for two different form of distribution.
+ Uniform distribution of the values as opposed to power law distribution
+ of the values of contents to the readers, respectively shown by blue and
+ red data points.
+ We see that, the average rate of convergence is strictly less for the power
+ law which is a more reallistic representation of real networks.
+ Showing that in real networks the game converges in faster pace rather
+ that random generated graphs.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename C:/Users/Hooshmand/Desktop/Simulations/Experiments/value/value.pdf
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+Two different convergence rates on the same randomly generated networks.
+ For every network, once we see the result of the game on a uniformly distribute
+d intrinsic values, and once on a set of value parameters generated according
+ to a pareto distribution.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document
